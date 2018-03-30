@@ -7,6 +7,9 @@ option(USE_CUDA "Use CUDA" ON)
 
 file(GLOB cpu_source_files "${CMAKE_SOURCE_DIR}/src/*.cc")
 file(GLOB gpu_source_files "${CMAKE_SOURCE_DIR}/src/*.cu")
+#add opencv
+find_package( OpenCV REQUIRED)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 if( ("${CMAKE_VERSION}" VERSION_EQUAL 3.8) OR
         ("${CMAKE_VERSION}" VERSION_GREATER 3.8) )
@@ -14,8 +17,11 @@ if( ("${CMAKE_VERSION}" VERSION_EQUAL 3.8) OR
     if(USE_CUDA)
         enable_language("CUDA")
         add_executable(diana ${cpu_source_files} ${gpu_source_files})
+		target_link_libraries (diana ${OpenCV_LIBS})
     else(USE_CUDA)
         add_executable(diana ${cpu_source_files})
+		target_link_libraries (diana ${OpenCV_LIBS})
+
     endif()
 else()
     # Old CMake
@@ -27,7 +33,8 @@ else()
             set(USE_CUDA OFF)
         else()
             CUDA_ADD_LIBRARY(diana_gpu ${gpu_source_files})
-            target_link_libraries(diana diana_gpu)
+            target_link_libraries(diana diana_gpu ${OpenCV_LIBS})
+
         endif()
     endif()
 endif()
